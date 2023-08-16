@@ -28,7 +28,9 @@ from subredo.videoredoproject import VideoReDoProject
                    "Otherwise, On Windows a new MKV will be automatically exported next to the project file.")
 @click.option("-k", "--keep-cut", is_flag=True, default=False,
               help="Keep the original Cut Video after multiplexing a Cut Video with the Subtitles.")
-def main(projects: list[Path], original_language: str, cut_video: Optional[Path], keep_cut: bool):
+@click.option("-o", "--offset", type=int, default=0,
+              help="Initial Subtitle Sync adjustment offset in milliseconds. Must be 0 or greater.")
+def main(projects: list[Path], original_language: str, cut_video: Optional[Path], keep_cut: bool, offset: int):
     """
     Apply Cuts from a VideoReDo Project File on Subtitles.
 
@@ -134,7 +136,7 @@ def main(projects: list[Path], original_language: str, cut_video: Optional[Path]
                 final_srt_file = subs_folder / f"sub_{sub.track_id}_{sub.language}_{sub.title}_cuts.srt"
                 with tempfile.TemporaryDirectory(prefix="rlaphoenix-subredo") as tmp_dir:
                     tmp_dir = Path(tmp_dir)
-                    segment_offset = Timestamp.from_milliseconds(0)
+                    segment_offset = Timestamp.from_milliseconds(offset)
                     for i, (a, b) in enumerate(keep_timestamps):
                         sub_file = tmp_dir / f"sub_{sub.track_id}_{sub.language}_{sub.title}_{i}.srt"
                         cut_subtitle(
