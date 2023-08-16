@@ -26,7 +26,9 @@ from subredo.videoredoproject import VideoReDoProject
 @click.option("-c", "--cut-video", type=Path, default=None,
               help="Specify manually exported cut video from the VideoReDo project file to mux the Subtitles to."
                    "Otherwise, On Windows a new MKV will be automatically exported next to the project file.")
-def main(projects: list[Path], original_language: str, cut_video: Optional[Path]):
+@click.option("-k", "--keep-cut", is_flag=True, default=False,
+              help="Keep the original Cut Video after multiplexing a Cut Video with the Subtitles.")
+def main(projects: list[Path], original_language: str, cut_video: Optional[Path], keep_cut: bool):
     """
     Apply Cuts from a VideoReDo Project File on Subtitles.
 
@@ -170,6 +172,9 @@ def main(projects: list[Path], original_language: str, cut_video: Optional[Path]
             mux_subtitles(cut_video, cut_with_subs, subs)
             for sub in subs:
                 sub.path.unlink()
+
+        if not keep_cut:
+            cut_video.unlink()
 
     print(":tada: Done!")
 
