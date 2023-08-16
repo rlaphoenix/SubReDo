@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import math
+import platform
 import shutil
 import sys
 import tempfile
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -29,9 +31,9 @@ def main(project: Path, cut_video: Optional[Path], original_language: str):
     \b
     PROJECT     The VideoReDo project file (.Vprj) to read and apply cuts from.
                 Subtitles are read from the source file of the project.
-    [CUT_VIDEO] The exported video from the VideoReDo project file to mux the
-                Subtitles to. You do not explicitly need to define the cut
-                video file path unless it cannot be automatically determined.
+    [CUT_VIDEO] Specify manually exported cut video from the VideoReDo project file
+                to mux the Subtitles to. Otherwise, SubReDo will automatically
+                export a new MKV next to the project file.
     """
     video_redo_project = VideoReDoProject.loads(project.read_text(encoding="utf8"))
     subs_folder = Path("subs")
@@ -49,10 +51,23 @@ def main(project: Path, cut_video: Optional[Path], original_language: str):
     elapsed = Timestamp.from_milliseconds(0)
 
     if not cut_video:
-        cut_video = project.with_suffix(".mkv")
-        if not cut_video.exists():
-            print("[ERROR]: Unable to determine the path to the Cut Video export.")
-            sys.exit(1)
+        if platform.system() == "Windows":
+            from subredo.videoredocom import VideoReDo
+            with Status("Exporting the VideoReDo Project to MKV...") as status:
+                cut_video = project.with_stem(f"{project.stem} (SubReDo)").with_suffix(".mkv")
+                vrd = VideoReDo()
+                if not vrd.file_open(project):
+                    raise ValueError(f"Failed to open Project File \"{project}\"")
+                if not vrd.file_save_as(cut_video, "Matroska MKV"):
+                    raise ValueError(f"Failed to save Video to \"{cut_video}\"")
+                while vrd.vrd.OutputGetState != 0:
+                    status.update(f"Exporting the VideoReDo Project to MKV ({vrd.output_get_percent_complete:.2f}%)...")
+                    time.sleep(0.2)
+        else:
+            cut_video = project.with_suffix(".mkv")
+            if not cut_video.exists():
+                print("[ERROR]: Unable to automatically determine the path to the Cut Video export.")
+                sys.exit(1)
 
     if video_redo_project.cut_mode:
         # TODO: Seems to be used even in Scene editing mode?

@@ -13,7 +13,8 @@ SubReDo, and it will apply the same cuts but on the Subtitle files.
 
 ## Features
 
-- Automatically Muxes Subtitle Cuts to Video Cut Export
+- Export VideoReDo Project to MKV automatically **(Windows Only)**
+- Automatically Mux Subtitle Cuts to MKV Video Cut Exports
 - Subtitle Flags and Metadata from Original Source are Retained
 
 ## Dependencies
