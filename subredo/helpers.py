@@ -44,13 +44,24 @@ def offset_subtitle(subtitle_path: Path, offset: Timestamp) -> int:
     if subtitle_path.stat().st_size == 0:
         # nothing to offset and SubtitleEdit complains
         return 0
-    return subprocess.check_call([
+    res = subprocess.check_call([
         "SubtitleEdit",
         "/convert", subtitle_path,
         "srt",
         f"/offset:{str(offset).replace('.', ':')}",
+        "/encoding:utf8",
         "/overwrite"
     ], stdout=subprocess.DEVNULL)
+    remove_utf8_bom(subtitle_path)
+    return res
+
+
+def remove_utf8_bom(file: Path) -> None:
+    """Remove Byte-Order-Marks from UTF-8 file."""
+    file.write_text(
+        file.read_text(encoding="utf-8-sig"),
+        encoding="utf8"
+    )
 
 
 def mux_subtitles(video_path: Path, out_path: Path, subtitles: list[Subtitle]) -> int:
