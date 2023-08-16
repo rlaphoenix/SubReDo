@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import math
 import shutil
+import sys
 import tempfile
 from pathlib import Path
+from typing import Optional
 
 import click
 from rich.status import Status
@@ -17,18 +19,19 @@ from subredo.videoredoproject import VideoReDoProject
 
 @click.command()
 @click.argument("project", type=Path)
-@click.argument("cut_video", type=Path)
+@click.argument("cut_video", type=Path, required=False)
 @click.option("-o", "--original-language", type=str, default="en",
               help="Declare the Original Language for this Video's Subtitle flags.")
-def main(project: Path, cut_video: Path, original_language: str):
+def main(project: Path, cut_video: Optional[Path], original_language: str):
     """
     Apply Cuts from a VideoReDo Project File on Subtitles.
 
     \b
     PROJECT     The VideoReDo project file (.Vprj) to read and apply cuts from.
                 Subtitles are read from the source file of the project.
-    CUT_VIDEO   The exported video from the VideoReDo project file to mux the
-                Subtitles to. Must be MKV.
+    [CUT_VIDEO] The exported video from the VideoReDo project file to mux the
+                Subtitles to. You do not explicitly need to define the cut
+                video file path unless it cannot be automatically determined.
     """
     video_redo_project = VideoReDoProject.loads(project.read_text(encoding="utf8"))
     subs_folder = Path("subs")
@@ -44,6 +47,12 @@ def main(project: Path, cut_video: Path, original_language: str):
 
     keep_timestamps = []
     elapsed = Timestamp.from_milliseconds(0)
+
+    if not cut_video:
+        cut_video = project.with_suffix(".mkv")
+        if not cut_video.exists():
+            print("[ERROR]: Unable to determine the path to the Cut Video export.")
+            sys.exit(1)
 
     if video_redo_project.cut_mode:
         # TODO: Seems to be used even in Scene editing mode?
