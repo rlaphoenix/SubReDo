@@ -134,7 +134,7 @@ def main(projects: list[Path], original_language: str, cut_video: Optional[Path]
                 final_srt_file = subs_folder / f"sub_{sub.track_id}_{sub.language}_{sub.title}_cuts.srt"
                 with tempfile.TemporaryDirectory(prefix="rlaphoenix-subredo") as tmp_dir:
                     tmp_dir = Path(tmp_dir)
-                    offset = keep_timestamps[0][0]
+                    segment_offset = Timestamp.from_milliseconds(0)
                     for i, (a, b) in enumerate(keep_timestamps):
                         sub_file = tmp_dir / f"sub_{sub.track_id}_{sub.language}_{sub.title}_{i}.srt"
                         cut_subtitle(
@@ -144,8 +144,8 @@ def main(projects: list[Path], original_language: str, cut_video: Optional[Path]
                             start=a,
                             end=b
                         )
-                        offset_subtitle(sub_file, offset)
-                        offset += (b - a)
+                        offset_subtitle(sub_file, segment_offset)
+                        segment_offset += (b - a)
                     merged_srt_data = "\n".join([
                         srt.read_text(encoding="utf8")
                         for srt in tmp_dir.glob("*.srt")
