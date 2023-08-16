@@ -28,18 +28,24 @@ Working Directory, or in SubReDo's Installation directory.
 ## Usage
 
 ```
-Usage: subredo [OPTIONS] PROJECT CUT_VIDEO
+Usage: subredo [OPTIONS] [PROJECTS]...
 
-  Apply Cuts from a VideoReDo Project File to Subtitles.
+  Apply Cuts from a VideoReDo Project File on Subtitles.
 
-  PROJECT     The VideoReDo project file (.Vprj) to read and apply cuts from.
-              Subtitles are read from the source file of the project.
-  CUT_VIDEO   The exported video from the VideoReDo project file to mux the
-              Subtitles to. Must be MKV.
+  PROJECTS    One or more VideoReDo project files (.Vprj) to read and apply cuts from.
+              You can alternatively specify a folder to search for .Vprj files from.
+              Subtitles are read from the source file of each project.
 
 Options:
   -o, --original-language TEXT  Declare the Original Language for this Video's
                                 Subtitle flags.
+  -c, --cut-video PATH          Specify manually exported cut video from the
+                                VideoReDo project file to mux the Subtitles
+                                to.Otherwise, On Windows a new MKV will be
+                                automatically exported next to the project
+                                file.
+  -k, --keep-cut                Keep the original Cut Video after multiplexing
+                                a Cut Video with the Subtitles.
   --help                        Show this message and exit.
 ```
 
