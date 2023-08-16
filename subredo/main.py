@@ -170,11 +170,10 @@ def main(projects: list[Path], original_language: str, cut_video: Optional[Path]
                 for sub in subtitles
             ]
             mux_subtitles(cut_video, cut_with_subs, subs)
-            for sub in subs:
-                sub.path.unlink()
 
         if not keep_cut:
             cut_video.unlink()
+        shutil.rmtree(subs_folder)
 
     print(":tada: Done!")
 
