@@ -146,13 +146,13 @@ def main(projects: list[Path], original_language: str, cut_video: Optional[Path]
                         )
                         offset_subtitle(sub_file, offset)
                         offset += (b - a)
-                    final_srt_file.write_text(
-                        "\n".join([
-                            srt.read_text(encoding="utf8")
-                            for srt in tmp_dir.glob("*.srt")
-                        ]),
-                        encoding="utf8"
-                    )
+                    merged_srt_data = "\n".join([
+                        srt.read_text(encoding="utf8")
+                        for srt in tmp_dir.glob("*.srt")
+                        if srt.stat().st_size > 0
+                    ])
+                    if len(merged_srt_data) > 0:
+                        final_srt_file.write_text(merged_srt_data, encoding="utf8")
 
         with Status("Muxing Subtitles to MKV..."):
             cut_with_subs = cut_video.with_stem(cut_video.stem + " (with Subs)")

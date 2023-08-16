@@ -73,6 +73,9 @@ def mux_subtitles(video_path: Path, out_path: Path, subtitles: list[Subtitle]) -
     ]
 
     for subtitle in subtitles:
+        if not subtitle.path.exists():
+            # sub track only had captions in the now deleted segments
+            continue
         cli.extend([
             "--track-name", f"0:{subtitle.name or ''}",
             "--language", f"0:{subtitle.language}",
