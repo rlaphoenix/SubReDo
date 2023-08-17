@@ -95,7 +95,6 @@ def main(projects: list[Path], original_language: str, cut_video: Optional[Path]
         cuts_table.add_column("Start", style="magenta")
         cuts_table.add_column("End", style="magenta")
         cuts_table.add_column("Difference", justify="right", style="green")
-        cuts_table.add_column("Note", justify="right")
 
         segment_i = 0
         if video_redo_project.cut_mode:
@@ -103,18 +102,16 @@ def main(projects: list[Path], original_language: str, cut_video: Optional[Path]
             for cut in video_redo_project.cut_list:
                 cut_start = Timestamp.from_timecode(cut.cut_start, fps)
                 cut_end = Timestamp.from_timecode(cut.cut_end, fps)
+                cut_duration = cut_end - cut_start
+
                 if cut_start == cut_end:
                     # it didn't cut away anything duration-wise, likely header data, skip
                     print(f"Ignoring Cut #{cut.sequence} as it's a duration-less cut and will not affect Subtitles")
                     continue
-
-                cut_duration = cut_end - cut_start
-
-                note = ""
                 if cut_duration.total_milliseconds() <= frame_time_ms_int:
-                    note = "1 frame long"
-                elif cut_duration.total_milliseconds() < 1000:
-                    note = "less than 1 second long"
+                    # likely some way to "define" a cut between two segments that were kept
+                    # but cutting off one frame for no reason is stupid
+                    continue
 
                 if elapsed < cut_start:
                     a, b = elapsed + frame_time_ms, cut_start - frame_time_ms
@@ -123,10 +120,7 @@ def main(projects: list[Path], original_language: str, cut_video: Optional[Path]
                     cuts_table.add_row(f"{segment_i}", str(a), str(b), f"{b - a}")
 
                 segment_i += 1
-                cuts_table.add_row(
-                    f"[bold red]-[/] {segment_i}", str(cut_start), str(cut_end), f"-{cut_duration}",
-                    note
-                )
+                cuts_table.add_row(f"[bold red]-[/] {segment_i}", str(cut_start), str(cut_end), f"-{cut_duration}")
 
                 elapsed = cut_end
         else:
