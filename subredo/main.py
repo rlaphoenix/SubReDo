@@ -13,6 +13,7 @@ import click
 from rich.status import Status
 from rich import print
 from pymediainfo import MediaInfo
+from rich.table import Table
 
 from subredo.helpers import mux_subtitles, Subtitle, offset_subtitle, cut_subtitle
 from subredo.timestamp import Timestamp
@@ -89,6 +90,14 @@ def main(projects: list[Path], original_language: str, cut_video: Optional[Path]
                     print("[ERROR]: Unable to automatically determine the path to the Cut Video export.")
                     sys.exit(1)
 
+        cuts_table = Table(title="Project Segments")
+        cuts_table.add_column("#", justify="right", style="cyan", no_wrap=True)
+        cuts_table.add_column("Start", style="magenta")
+        cuts_table.add_column("End", style="magenta")
+        cuts_table.add_column("Difference", justify="right", style="green")
+        cuts_table.add_column("Note", justify="right")
+
+        segment_i = 0
         if video_redo_project.cut_mode:
             # TODO: Seems to be used even in Scene editing mode?
             for cut in video_redo_project.cut_list:
@@ -96,35 +105,45 @@ def main(projects: list[Path], original_language: str, cut_video: Optional[Path]
                 cut_end = Timestamp.from_timecode(cut.cut_end, fps)
                 if cut_start == cut_end:
                     # it didn't cut away anything duration-wise, likely header data, skip
-                    print(f"Cut {cut.sequence}: SKIPPED (duration-less cut)")
+                    print(f"Ignoring Cut #{cut.sequence} as it's a duration-less cut and will not affect Subtitles")
                     continue
 
                 cut_duration = cut_end - cut_start
 
-                warning = None
+                note = ""
                 if cut_duration.total_milliseconds() <= frame_time_int:
-                    warning = "1 frame long"
+                    note = "1 frame long"
                 elif cut_duration.total_milliseconds() < 1000:
-                    warning = "less than 1 second long"
-
-                print(
-                    f"Cut {cut.sequence}", cut_start, "-->", cut_end, f"(-{cut_duration})",
-                    f"[WARNING: {warning}]" if warning else ""
-                )
+                    note = "less than 1 second long"
 
                 if elapsed < cut_start:
-                    keep_timestamps.append((elapsed, cut_start - frame_time))
+                    a, b = elapsed, cut_start - frame_time
+                    keep_timestamps.append((a, b))
+                    segment_i += 1
+                    cuts_table.add_row(f"{segment_i}", str(a), str(b), f"{b - a}")
+
+                segment_i += 1
+                cuts_table.add_row(
+                    f"[bold red]-[/] {segment_i}", str(cut_start), str(cut_end), f"-{cut_duration}",
+                    note
+                )
 
                 elapsed = cut_end
         else:
             raise NotImplementedError("Scene Edit Mode is not yet supported...")
 
         if elapsed < duration:
-            keep_timestamps.append((elapsed, duration))
+            segment_i += 1
+            a, b = elapsed, duration
+            keep_timestamps.append((a, b))
+            cuts_table.add_row(f"{segment_i}", str(a), str(b), f"{b - a}")
 
-        print("Keeping Captions in the following Segments:")
+        print(cuts_table)
+
+        final_duration = Timestamp.from_milliseconds(0)
         for a, b in keep_timestamps:
-            print(" ", a, "-->", b, f"({b - a})")
+            final_duration += b - a
+        print("Final Duration:", final_duration)
 
         if subs_folder.exists():
             shutil.rmtree(subs_folder)
