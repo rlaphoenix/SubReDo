@@ -17,7 +17,7 @@ class Timestamp:
             self.ms *= 1000
 
     def __str__(self) -> str:
-        return f"{self.hours:02}:{self.minutes:02}:{self.seconds:02}.{int(self.ms)}"
+        return f"{self.hours:02}:{self.minutes:02}:{self.seconds:02}.{int(self.ms):0>3}"
 
     def __lt__(self, other: Timestamp) -> bool:
         return self.total_milliseconds() < other.total_milliseconds()
@@ -37,7 +37,7 @@ class Timestamp:
     def __ne__(self, other: Timestamp) -> bool:
         return self.total_milliseconds() != other.total_milliseconds()
 
-    def __add__(self, other: Union[Timestamp, int]) -> Timestamp:
+    def __add__(self, other: Union[Timestamp, int, float]) -> Timestamp:
         total_ms = self.total_milliseconds()
         if isinstance(other, Timestamp):
             total_ms += other.total_milliseconds()
