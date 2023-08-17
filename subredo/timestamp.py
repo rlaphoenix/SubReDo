@@ -13,9 +13,6 @@ class Timestamp:
         self.seconds = seconds
         self.ms = ms
 
-        if self.ms < 1:
-            self.ms *= 1000
-
     def __str__(self) -> str:
         return f"{self.hours:02}:{self.minutes:02}:{self.seconds:02}.{int(self.ms):0>3}"
 
@@ -57,14 +54,13 @@ class Timestamp:
     def load(cls, value: str) -> Timestamp:
         time, ms = value.split(".")
         hours, minutes, seconds = map(int, time.split(":"))
-        ms = float(f"0.{ms}")
+        ms = float(f"0.{ms}") * 1000
         return cls(hours, minutes, seconds, ms)
 
     @classmethod
     def from_timecode(cls, timecode: Timecode, fps: Union[int, float]):
-        frame_time = 1 / fps  # time each frame is displayed on screen
-        frame_stamp = frame_time * timecode.frame
-        ms = frame_stamp
+        frame_time_ms = 1000 / fps
+        ms = frame_time_ms * timecode.frame
         return cls(timecode.hours, timecode.minutes, timecode.seconds, ms)
 
     @classmethod
