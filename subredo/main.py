@@ -100,8 +100,9 @@ def main(projects: list[Path], original_language: str, cut_video: Optional[Path]
         if video_redo_project.cut_mode:
             # TODO: Seems to be used even in Scene editing mode?
             for cut in video_redo_project.cut_list:
-                cut_start = Timestamp.from_timecode(cut.cut_start, fps)
-                cut_end = Timestamp.from_timecode(cut.cut_end, fps)
+                # the timecodes could be used, but is problematic to get an accurate timestamp
+                cut_start = Timestamp.from_milliseconds((cut.cut_time_start / 10000)) - frame_time_ms
+                cut_end = Timestamp.from_milliseconds((cut.cut_time_end / 10000)) - frame_time_ms
                 cut_duration = cut_end - cut_start
 
                 if cut_start == cut_end:
