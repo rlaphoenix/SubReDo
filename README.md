@@ -19,11 +19,16 @@ SubReDo, and it will apply the same cuts but on the Subtitle files.
 
 ## Dependencies
 
-- [FFmpeg](https://ffmpeg.org) for cutting the Subtitles at specific calculated timestamps.
-- [SubtitleEdit](https://nikse.dk/subtitleedit) for offsetting the Subtitle captions to sync up with the Cut video.
+- [FFmpeg] for cutting the Subtitles at specific calculated timestamps.
+- [SubtitleEdit] for offsetting the Subtitle captions to sync up with the Cut video.
+- **Windows**: [VideoReDo] (v5, v6, or v6 Pro) for automatically exporting the project file to MKV.
 
 Please make sure `ffmpeg` and `SubtitleEdit` can be found on your `PATH` Environment Variable, in your Current
 Working Directory, or in SubReDo's Installation directory.
+
+  [FFmpeg]: <https://ffmpeg.org>
+  [SubtitleEdit]: <https://nikse.dk/subtitleedit>
+  [VideoReDo]: <https://videoredo.com>
 
 ## Usage
 
@@ -46,6 +51,8 @@ Options:
                                 file.
   -k, --keep-cut                Keep the original Cut Video after multiplexing
                                 a Cut Video with the Subtitles.
+  -o, --offset INTEGER          Initial Subtitle Sync adjustment offset in
+                                milliseconds. Must be 0 or greater.
   --help                        Show this message and exit.
 ```
 
