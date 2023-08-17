@@ -65,8 +65,8 @@ def main(projects: list[Path], original_language: str, cut_video: Optional[Path]
 
         duration = Timestamp.from_milliseconds(video_redo_project.duration / 10000)
         fps = int(video_track.framerate_num) / int(video_track.framerate_den)
-        frame_time = (1 / fps) * 1000
-        frame_time_int = math.ceil(frame_time)
+        frame_time_ms = (1 / fps) * 1000
+        frame_time_ms_int = math.ceil(frame_time_ms)
 
         keep_timestamps = []
         elapsed = Timestamp.from_milliseconds(0)
@@ -111,13 +111,13 @@ def main(projects: list[Path], original_language: str, cut_video: Optional[Path]
                 cut_duration = cut_end - cut_start
 
                 note = ""
-                if cut_duration.total_milliseconds() <= frame_time_int:
+                if cut_duration.total_milliseconds() <= frame_time_ms_int:
                     note = "1 frame long"
                 elif cut_duration.total_milliseconds() < 1000:
                     note = "less than 1 second long"
 
                 if elapsed < cut_start:
-                    a, b = elapsed, cut_start - frame_time
+                    a, b = elapsed + frame_time_ms, cut_start - frame_time_ms
                     keep_timestamps.append((a, b))
                     segment_i += 1
                     cuts_table.add_row(f"{segment_i}", str(a), str(b), f"{b - a}")
@@ -134,15 +134,15 @@ def main(projects: list[Path], original_language: str, cut_video: Optional[Path]
 
         if elapsed < duration:
             segment_i += 1
-            a, b = elapsed, duration
+            a, b = elapsed + frame_time_ms, duration
             keep_timestamps.append((a, b))
             cuts_table.add_row(f"{segment_i}", str(a), str(b), f"{b - a}")
-
-        print(cuts_table)
 
         final_duration = Timestamp.from_milliseconds(0)
         for a, b in keep_timestamps:
             final_duration += b - a
+
+        print(cuts_table)
         print("Final Duration:", final_duration)
 
         if subs_folder.exists():
