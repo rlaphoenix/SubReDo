@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "SubReDo"
-version = "1.0.0"
+version = "1.1.0"
 description = "Apply Cuts from VideoReDo Project Files to Subtitles."
 authors = ["rlaphoenix <rlaphoenix@pm.me>"]
 readme = "README.md"
