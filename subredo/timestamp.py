@@ -42,13 +42,13 @@ class Timestamp:
             total_ms += other
         return self.from_milliseconds(total_ms)
 
-    def __sub__(self, other: Union[Timestamp, int]) -> Timestamp:
+    def __sub__(self, other: Union[Timestamp, int, float]) -> Timestamp:
         total_ms = self.total_milliseconds()
         if isinstance(other, Timestamp):
             total_ms -= other.total_milliseconds()
         else:
             total_ms -= other
-        return self.from_milliseconds(total_ms)
+        return self.from_milliseconds(max(0, total_ms))
 
     @classmethod
     def load(cls, value: str) -> Timestamp:
