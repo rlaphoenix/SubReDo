@@ -145,7 +145,7 @@ def main(projects: list[Path], original_language: str, cut_video: Optional[Path]
         subs_folder.mkdir(parents=True)
 
         for sub in subtitles:
-            with Status(f"Processing Subtitle #{sub.stream_identifier + 1} ({sub.language} {sub.title or ''})..."):
+            with Status(f"Processing Subtitle #{int(sub.stream_identifier) + 1} ({sub.language} {sub.title or ''})..."):
                 # Use FFMPEG to make the cuts, use SubEdit to rebase it's offset
                 final_srt_file = subs_folder / f"sub_{sub.track_id}_{sub.language}_{sub.title}_cuts.srt"
                 with tempfile.TemporaryDirectory(prefix="rlaphoenix-subredo") as tmp_dir:
