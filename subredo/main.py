@@ -127,7 +127,7 @@ def main(projects: list[Path], original_language: str, cut_video: Optional[Path]
         else:
             raise NotImplementedError("Scene Edit Mode is not yet supported...")
 
-        if elapsed < duration:
+        if elapsed + frame_time_ms < duration:
             segment_i += 1
             a, b = elapsed + frame_time_ms, duration
             keep_timestamps.append((a, b))
